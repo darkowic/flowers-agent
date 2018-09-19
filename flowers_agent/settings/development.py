@@ -13,3 +13,6 @@ DATABASES = {
         'PORT': '',
     }
 }
+
+# override here the public url when testing messenger
+# PUBLIC_URL = ''

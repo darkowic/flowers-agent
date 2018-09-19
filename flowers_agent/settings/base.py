@@ -17,8 +17,6 @@ from ..helpers import get_env_variable
 # BASE_DIR is a repository root
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-print('test', BASE_DIR)
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -30,6 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# should not end with /
+PUBLIC_URL = '127.0.0.1:8000'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'flowers_agent.messenger_bot'
+    'webpack_loader',
+
+    # ----- Project Apps ----- #
+    'flowers_agent.messenger_bot',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +53,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # TODO: setup correctly x frame options header for messenger views
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'flowers_agent.urls'
@@ -108,6 +113,26 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = (
+    # Add front build files
+    os.path.join(BASE_DIR, 'front', 'build', 'static'),
+)
+
+# =============================================
+# =           Messenger settings              =
+# =============================================
+
 MESSENGER_ACCESS_TOKEN = get_env_variable('MESSENGER_ACCESS_TOKEN')
 
 MESSENGER_VERIFY_TOKEN = get_env_variable('MESSENGER_VERIFY_TOKEN')
+
+# =============================================
+# =           Webpack loader                  =
+# =============================================
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'frontend/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'front', 'build', 'webpack-stats.json')
+    }
+}

@@ -1,11 +1,11 @@
 import json
 
-from django import views
+from django.views import generic as views
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
-from .helpers import handle_message, handle_message_reads
+from .helpers import WebhookHandler
 
 
 # Create your views here.
@@ -34,16 +34,29 @@ class MessengerWebhookView(views.View):
                 # Get the webhook event. entry.messaging is an array, but
                 # will only ever contain one event, so we get index 0
                 webhook_event = entry['messaging'][0]
-                sender_psid = webhook_event['sender']['id']
-                print('test webhook_event', webhook_event)
-                if (webhook_event.get('message')):
-                    handle_message(sender_psid, webhook_event.get('message'))
-                elif (webhook_event.get('read')):
-                    handle_message_reads(sender_psid, webhook_event.get('message_reads'))
-                else:
-                    print('Not recognized webhook event', webhook_event)
+                handler = WebhookHandler(
+                    webhook_event['recipient']['id'],
+                    webhook_event['sender']['id']
+                )
+                try:
+                    handler.handle(webhook_event)
+                except ValueError:
+                    print('Not supported webhook event', webhook_event)
+
             return HttpResponse('EVENT_RECEIVED')
         raise Http404
 
 
 messenger_webhook_view = csrf_exempt(MessengerWebhookView.as_view())
+
+
+class IndexView(views.TemplateView):
+    template_name = 'messenger_bot/index.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(IndexView, self).get_context_data(**kwargs)
+        context_data['data'] = {}
+        return context_data
+
+
+index_view = IndexView.as_view()

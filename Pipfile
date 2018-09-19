@@ -7,6 +7,7 @@ name = "pypi"
 pymessenger = "*"
 django = "*"
 "psycopg2-binary" = "*"
+django-webpack-loader = "*"
 
 [dev-packages]
 

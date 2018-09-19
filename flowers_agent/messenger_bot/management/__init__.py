@@ -1,0 +1,1 @@
+__author__ = "Dariusz Rzepka <dariusz.rzepka@deployed.pl>"

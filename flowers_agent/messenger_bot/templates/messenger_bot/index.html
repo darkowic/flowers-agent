@@ -1,0 +1,23 @@
+{% load render_bundle from webpack_loader %}
+{% load webpack_static from webpack_loader %}
+<!doctype html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
+  <title>Flower's agent</title>
+  <script>window.env = {};</script>
+  <script>
+    {% for k, v in data.items %}
+      window.env['{{ k }}'] = '{{ v }}';
+    {% endfor %}
+  </script>
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root"></div>
+{% render_bundle 'main' %}
+</body>
+</html>
