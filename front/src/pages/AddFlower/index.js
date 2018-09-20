@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -9,7 +10,11 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import green from '@material-ui/core/colors/green';
 import withRoot from '../../withRoot';
+
+import WebviewControls from 'webview-controls';
 
 
 const styles = theme => ({
@@ -29,21 +34,39 @@ const styles = theme => ({
     height: 'auto',
     margin: 'auto',
     padding: `${theme.spacing.unit}px 0`
-  }
+  },
+  wrapper: {
+    margin: theme.spacing.unit,
+    position: 'relative',
+  },
+  buttonSuccess: {
+    backgroundColor: green[500],
+    '&:hover': {
+      backgroundColor: green[700],
+    },
+  },
+  buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12,
+  },
 });
 
 const WATERING_PERIODS = [{
   label: 'Raz dziennie',
-  value: '1d'
+  value: '1D'
 }, {
   label: 'Co 2 dni',
-  value: '2d'
+  value: '2D'
 }, {
   label: 'Co 3 dni',
-  value: '3d'
+  value: '3D'
 }, {
   label: 'Co 4 dni',
-  value: '4d'
+  value: '4D'
 }];
 
 class AddFlower extends React.Component {
@@ -51,19 +74,10 @@ class AddFlower extends React.Component {
     name: '',
     image: '',
     imagePreviewUrl: '',
-    wateringPeriod: ''
-  };
-
-  handleClose = () => {
-    this.setState({
-      open: false,
-    });
-  };
-
-  handleClick = () => {
-    this.setState({
-      open: true,
-    });
+    wateringPeriod: '',
+    loading: false,
+    success: false,
+    error: ''
   };
 
   handleChange = name => event => {
@@ -73,9 +87,53 @@ class AddFlower extends React.Component {
   };
 
   handleSubmit = (e) => {
+    this.setState({
+      loading: true,
+    })
     e.preventDefault();
+    const { name, image, wateringPeriod } = this.state;
+    const { context } = this.props;
+    const form = new FormData();
+    form.append('psid', context.psid);
+    form.append('name', name);
+    form.append('image', image);
+    form.append('period', wateringPeriod);
+
+    fetch('/api/flowers/', {
+        method: 'post',
+        credentials: 'include',
+        body: form,
+      }
+    )
+      .then(this.checkStatus)
+      .then((data) => {
+        this.setState({
+          success: true,
+          loading: false
+        })
+        WebviewControls.close();
+        console.log('success posting data', data)
+      })
+      .catch((err) => {
+        this.setState({
+          loading: false,
+          error: err.toString()
+        });
+        console.error('error posting data', err)
+      })
     console.log('handle submit!')
   };
+
+
+  checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    }
+    const error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+
 
   handleImageChange = (e) => {
     e.preventDefault();
@@ -95,7 +153,11 @@ class AddFlower extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { imagePreviewUrl, name } = this.state;
+    const { imagePreviewUrl, name, error, success, loading } = this.state;
+
+    const buttonClassname = classNames({
+      [classes.buttonSuccess]: success,
+    });
 
     return (
       <React.Fragment>
@@ -167,13 +229,25 @@ class AddFlower extends React.Component {
               </MenuItem>
             ))}
           </TextField>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-          >
-            Dodaj {name ? `kwiatek "${name}"` : ''}
-          </Button>
+          <div className={classes.wrapper}>
+            <Button
+              className={buttonClassname}
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={loading}
+            >
+              Dodaj {name ? `kwiatek "${name}"` : ''}
+            </Button>
+            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+          </div>
+          {
+            error && (
+              <div>
+                Error: {error}
+              </div>
+            )
+          }
         </form>
       </React.Fragment>
     );

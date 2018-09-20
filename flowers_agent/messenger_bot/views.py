@@ -55,7 +55,9 @@ class IndexView(views.TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(IndexView, self).get_context_data(**kwargs)
-        context_data['data'] = {}
+        context_data['data'] = {
+            "APP_ID": settings.MESSENGER_APP_ID
+        }
         return context_data
 
 

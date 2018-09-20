@@ -40,8 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'webpack_loader',
 
+    # ----- 3rd part apps ----- #
+    'webpack_loader',
+    'rest_framework',
     # ----- Project Apps ----- #
     'flowers_agent.messenger_bot',
 ]
@@ -118,6 +120,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'front', 'build', 'static'),
 )
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 # =============================================
 # =           Messenger settings              =
 # =============================================
@@ -125,6 +132,8 @@ STATICFILES_DIRS = (
 MESSENGER_ACCESS_TOKEN = get_env_variable('MESSENGER_ACCESS_TOKEN')
 
 MESSENGER_VERIFY_TOKEN = get_env_variable('MESSENGER_VERIFY_TOKEN')
+
+# MESSENGER_APP_ID = get_env_variable('MESSENGER_APP_ID')
 
 # =============================================
 # =           Webpack loader                  =

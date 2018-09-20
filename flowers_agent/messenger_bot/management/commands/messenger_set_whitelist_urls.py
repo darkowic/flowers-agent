@@ -19,7 +19,7 @@ class Command(BaseCommand):
                 settings.PUBLIC_URL
             ]
         }
-        result = api.post(payload)
+        result = api.post(json=payload)
         if result.get('result') == 'success':
             self.stdout.write(self.style.SUCCESS('Successfully set whitelist domains.'))
         else:

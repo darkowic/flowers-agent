@@ -20,13 +20,13 @@ class WebhookHandler(object):
     supported_event = ['message', 'postback']
 
     def __init__(self, page_id, sender_psid):
+        # TODO: page id not used yet
         self.page_id = page_id
         self.sender_psid = sender_psid
 
     @property
     def user(self):
         return MessengerUser.objects.get(
-            page_id=self.page_id,
             psid=self.sender_psid
         )
 
@@ -43,7 +43,6 @@ class WebhookHandler(object):
         # TODO: This is temporary - create user when connect with hello message
         MessengerUser.objects.get_or_create(
             psid=self.sender_psid,
-            page_id=self.page_id
         )
         bot.send_text_message(self.sender_psid, 'Przepraszam, ale nie rozumiem co do mnie piszesz :(')
 
@@ -55,7 +54,6 @@ class WebhookHandler(object):
             # get or create new user's account
             MessengerUser.objects.get_or_create(
                 psid=self.sender_psid,
-                page_id=self.page_id
             )
             from .buttons import ADD_FLOWER_BUTTON  # cross import
             bot.send_button_message(
@@ -79,8 +77,8 @@ class WebhookHandler(object):
 
             for flower in flowers:
                 elements.append({
-                    'title': 'Kwiatek',
-                    'image_url': flower.image
+                    'title': flower.name,
+                    'image_url': settings.PUBLIC_URL + flower.image.url
                 })
             bot.send_generic_message(self.sender_psid, elements)
         else:
@@ -113,7 +111,7 @@ class FbMeAPIBase(object):
             self._auth_args = auth
         return self._auth_args
 
-    def post(self, api, payload):
+    def post(self, api, **kwargs):
         request_endpoint = '{graph_url}/me/{api}'.format(
             graph_url=self.graph_url,
             api=api
@@ -121,12 +119,17 @@ class FbMeAPIBase(object):
         response = requests.post(
             request_endpoint,
             params=self.auth_args,
-            json=payload
+            **kwargs
         )
         result = response.json()
         return result
 
 
 class FbMeProfileAPI(FbMeAPIBase):
-    def post(self, payload):
-        return super(FbMeProfileAPI, self).post('messenger_profile', payload)
+    def post(self, **kwargs):
+        return super(FbMeProfileAPI, self).post('messenger_profile', **kwargs)
+
+
+class FbMeMessagesAPI(FbMeAPIBase):
+    def post(self, **kwargs):
+        return super(FbMeMessagesAPI, self).post('message_attachments', **kwargs)

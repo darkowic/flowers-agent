@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 }
             ]
         }
-        result = api.post(payload)
+        result = api.post(json=payload)
         if result.get('result') == 'success':
             self.stdout.write(self.style.SUCCESS('Successfully updated persistent menu.'))
         else:

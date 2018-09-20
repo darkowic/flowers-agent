@@ -8,6 +8,8 @@ pymessenger = "*"
 django = "*"
 "psycopg2-binary" = "*"
 django-webpack-loader = "*"
+djangorestframework = "*"
+pillow = "*"
 
 [dev-packages]
 
