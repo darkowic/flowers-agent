@@ -4,7 +4,7 @@ from pymessenger.bot import Bot
 from django.conf import settings
 
 from .models import MessengerUser, Flower
-from .payloads import (GET_STARTED, SHOW_ALL_FLOWERS)
+from .payloads import (GET_STARTED, SHOW_ALL_FLOWERS, SHOW_ABOUT)
 
 MESSENGER_ACCESS_TOKEN = getattr(settings, 'MESSENGER_ACCESS_TOKEN')
 
@@ -81,6 +81,8 @@ class WebhookHandler(object):
                     'image_url': settings.PUBLIC_URL + flower.image.url
                 })
             bot.send_generic_message(self.sender_psid, elements)
+        elif (payload == SHOW_ABOUT):
+            bot.send_text_message(self.sender_psid, "Flower's agent development version. See source code at https://github.com/darkowic/flowers-agent")
         else:
             # TODO: logger
             print('Payload not recognized: {}'.format(payload))

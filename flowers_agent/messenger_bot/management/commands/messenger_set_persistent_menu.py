@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from flowers_agent.messenger_bot.helpers import FbMeProfileAPI
-from flowers_agent.messenger_bot.buttons import ADD_FLOWER_BUTTON, SHOW_ALL_FLOWERS_BUTTON
+from flowers_agent.messenger_bot.buttons import ADD_FLOWER_BUTTON, SHOW_ALL_FLOWERS_BUTTON, SHOW_INFO_BUTTON
 
 
 class Command(BaseCommand):
@@ -18,6 +18,7 @@ class Command(BaseCommand):
                     "call_to_actions": [
                         ADD_FLOWER_BUTTON,
                         SHOW_ALL_FLOWERS_BUTTON,
+                        SHOW_INFO_BUTTON,
                     ]
                 }
             ]
